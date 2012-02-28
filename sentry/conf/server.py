@@ -137,19 +137,21 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-handler = logging.StreamHandler()
-handler.setLevel(logging.INFO)
-logger.addHandler(handler)
+if logging.StreamHandler not in map(lambda x: x.__class__, logger.handlers):
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    logger.addHandler(handler)
 
-# Disable django.request as it's generally useless
-logger = logging.getLogger('django.request')
-logger.propagate = False
-logger.addHandler(handler)
+    # Disable django.request as it's generally useless
+    logger = logging.getLogger('django.request')
+    logger.propagate = False
+    logger.addHandler(handler)
 
-# Configure default sentry logging
-sentry_handler = SentryHandler()
-sentry_handler.setLevel(logging.ERROR)
-setup_logging(sentry_handler)
+if SentryHandler not in map(lambda x: x.__class__, logger.handlers):
+    # Configure default sentry logging
+    sentry_handler = SentryHandler()
+    sentry_handler.setLevel(logging.ERROR)
+    setup_logging(sentry_handler)
 
 # Configure celery
 import djcelery
